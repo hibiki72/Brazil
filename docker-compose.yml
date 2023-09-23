@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  app:
+    image: laravelphp
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/var/www
+    depends_on:
+      - database
+    environment:
+      - "DB_HOST=database"
+      - "REDIS_HOST=cache"
+
+  web:
+    image: node:latest
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    volumes:
+      - ./web:/app
+      - node_modules:/web/node_modules
+    ports:
+      - "8081:8080"
+    platform: linux/amd64  # ここ自分の環境に合うやつに変えてや〜
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./app/public:/var/www/html
+    depends_on:
+      - app
+    platform: linux/amd64  # ここ自分の環境に合うやつに変えてや〜
+
+  database:
+    image: mysql:5.7
+    container_name: db_container
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    platform: linux/amd64  # ここ自分の環境に合うやつに変えてや〜
+
+  cache:
+    image: redis:alpine
+
+volumes:
+  mysql_data:
+  node_modules:
