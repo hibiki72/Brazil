@@ -14,14 +14,14 @@ services:
       - "DB_HOST=database"
       - "REDIS_HOST=cache"
 
-  web:
+  fronted:
     image: node:latest
     build:
-      context: ./web
+      context: ./fronted
       dockerfile: Dockerfile
     volumes:
-      - ./web:/app
-      - node_modules:/web/node_modules
+      - ./fronted:/app
+      - node_modules:/fronted/node_modules
     ports:
       - "8081:8080"
     platform: linux/amd64  # ここ自分の環境に合うやつに変えてや〜
